@@ -696,22 +696,44 @@ require('lazy').setup({
       }
     end,
   },
-
+  {
+    'tjdevries/colorbuddy.nvim',
+  },
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'rose-pine/neovim',
+    -- 'rose-pine/neovim',
+    '2nthony/vitesse.nvim',
+
+    comment_italics = true,
+    transparent_background = true,
+    transparent_float_background = true, -- aka pum(popup menu) background
+    reverse_visual = false,
+    dim_nc = false,
+    cmp_cmdline_disable_search_highlight_group = false, -- disable search highlight group for cmp item
+    -- if `transparent_float_background` false, make telescope border color same as float background
+    telescope_border_follow_float_background = false,
+    -- similar to above, but for lspsaga
+    lspsaga_border_follow_float_background = false,
+    -- diagnostic virtual text background, like error lens
+    diagnostic_virtual_text_background = false,
+
+    -- override the `lua/vitesse/palette.lua`, go to file see fields
+    colors = {},
+    themes = {},
+
     priority = 1000, -- Make sure to load this before all the other start plugins.
     init = function()
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'rose-pine'
+      vim.cmd.colorscheme 'vitesse'
 
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
+      vim.cmd.hi 'Type gui=none'
       vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' })
     end,
   },
