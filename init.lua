@@ -16,7 +16,7 @@ vim.g.have_nerd_font = true
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -100,10 +100,10 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 --  Use CTRL+<hjkl> to switch between windows
 --
 --  See `:help wincmd` for a list of all window commands
-vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+-- vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
+-- vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
+-- vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
+-- vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -274,7 +274,8 @@ require('lazy').setup({
           },
         },
       }
-
+      local harpoon = require 'harpoon'
+      harpoon:setup()
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
@@ -291,6 +292,35 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+
+      -- Harpoon settings
+      vim.keymap.set('n', '<leader>a', function()
+        harpoon:list():add()
+      end)
+      vim.keymap.set('n', '<C-h>', function()
+        harpoon:list():select(1)
+      end)
+      vim.keymap.set('n', '<C-t>', function()
+        harpoon:list():select(2)
+      end)
+      vim.keymap.set('n', '<C-n>', function()
+        harpoon:list():select(3)
+      end)
+      vim.keymap.set('n', '<C-s>', function()
+        harpoon:list():select(4)
+      end)
+
+      -- Toggle previous & next buffers stored within Harpoon list
+      vim.keymap.set('n', '<C-S-P>', function()
+        harpoon:list():prev()
+      end)
+      vim.keymap.set('n', '<C-S-N>', function()
+        harpoon:list():next()
+      end)
+      vim.keymap.set('n', '<C-e>', function()
+        harpoon.ui:toggle_quick_menu(harpoon:list())
+      end)
+
       vim.api.nvim_set_keymap(
         'n',
         '<leader>p',
@@ -705,6 +735,78 @@ require('lazy').setup({
   {
     'tjdevries/colorbuddy.nvim',
   },
+  -- {
+  --   'rose-pine/neovim',
+  --   priority = 1000,
+  --   config = function()
+  --     require('rose-pine').setup {
+  --       -- variant = 'moon', -- Try 'moon' for a darker base
+  --       disable_background = true,
+  --       disable_float_background = true,
+  --       disable_italics = false,
+  --
+  --       highlight_groups = {
+  --         -- Adjust these values to make colors more transparent
+  --         -- The fourth value is the alpha channel (0-255, where 0 is fully transparent)
+  --         Keyword = { blend = 15 },
+  --         String = { blend = 15 },
+  --         Function = { blend = 15 },
+  --         Comment = { blend = 15 },
+  --         -- Cursor
+  --         Cursor = { fg = 'NONE', bg = '#908caa', blend = 30 },
+  --         CursorLine = { bg = '#2a2837', blend = 20 },
+  --         CursorColumn = { bg = '#2a2837', blend = 20 },
+  --       },
+  --     }
+  --
+  --     vim.cmd 'colorscheme rose-pine'
+  --
+  --     -- These commands should be after setting the colorscheme
+  --     vim.api.nvim_set_hl(0, 'Normal', { bg = 'NONE', ctermbg = 'NONE' })
+  --     vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'NONE', ctermbg = 'NONE' })
+  --   end,
+  -- },
+  -- { -- You can easily change to a different colorscheme.
+  --   'rose-pine/neovim',
+  --
+  --   -- opts = {
+  --   --
+  --   --   comment_italics = true,
+  --   --   transparent_background = true,
+  --   --   transparent_float_background = true, -- aka pum(popup menu) background
+  --   --   reverse_visual = false,
+  --   --   dim_nc = false,
+  --   --   cmp_cmdline_disable_search_highlight_group = false, -- disable search highlight group for cmp item
+  --   --   -- if `transparent_float_background` false, make telescope border color same as float background
+  --   --   telescope_border_follow_float_background = false,
+  --   --   -- similar to above, but for lspsaga
+  --   --   lspsaga_border_follow_float_background = false,
+  --   --   -- diagnostic virtual text background, like error lens
+  --   --   diagnostic_virtual_text_background = false,
+  --
+  --   priority = 1000, -- Make sure to load this before all the other start plugins.
+  --   -- },
+  --   init = function()
+  --     -- Load the colorscheme here.
+  --     -- Like many other themes, this one has different styles, and you could load
+  --     -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+  --     vim.cmd.colorscheme 'rose-pine'
+  --
+  --     -- You can configure highlights by doing something like:
+  --     vim.cmd.hi 'Comment gui=none'
+  --     vim.cmd.hi 'Type gui=none'
+  --   end,
+  --
+  --   config = function()
+  --     require('rose-pine').setup {
+  --       disable_background = true,
+  --       comment_italics = true,
+  --       vim.api.nvim_set_hl(0, 'Normal', { bg = 'none' }),
+  --       vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' }),
+  --     }
+  --   end,
+  -- },
+
   { -- You can easily change to a different colorscheme.
     -- Change the name of the colorscheme plugin below, and then
     -- change the command in the config to whatever the name of that colorscheme is.
@@ -743,7 +845,6 @@ require('lazy').setup({
       vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' })
     end,
   },
-
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
@@ -813,6 +914,12 @@ require('lazy').setup({
       --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
       --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
     end,
+  },
+
+  {
+    'ThePrimeagen/harpoon',
+    branch = 'harpoon2',
+    dependencies = { 'nvim-lua/plenary.nvim' },
   },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
