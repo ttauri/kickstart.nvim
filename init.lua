@@ -142,6 +142,11 @@ vim.opt.rtp:prepend(lazypath)
 --    :Lazy update
 --
 -- NOTE: Here is where you install your plugins.
+
+function ColorMyPencils(color)
+  color = color or 'rose-pine'
+  vim.cmd.colorscheme(color)
+end
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
@@ -766,85 +771,85 @@ require('lazy').setup({
   --     vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'NONE', ctermbg = 'NONE' })
   --   end,
   -- },
-  -- { -- You can easily change to a different colorscheme.
+  -- {
   --   'rose-pine/neovim',
+  --   name = 'rose-pine',
   --
-  --   -- opts = {
+  --   config = function()
+  --     require('rose-pine').setup { disable_background = true, disable_float_background = true, disable_italics = true }
+  --
+  --     vim.cmd 'colorscheme rose-pine'
+  --     ColorMyPencils()
+  --   end,
+  -- },
+  {
+    'rebelot/kanagawa.nvim',
+    config = function()
+      require('kanagawa').setup {
+        compile = false, -- enable compiling the colorscheme
+        undercurl = true, -- enable undercurls
+        commentStyle = { italic = true },
+        functionStyle = {},
+        keywordStyle = { italic = true },
+        statementStyle = { bold = true },
+        typeStyle = {},
+        transparent = false, -- do not set background color
+        dimInactive = false, -- dim inactive window `:h hl-NormalNC`
+        terminalColors = true, -- define vim.g.terminal_color_{0,17}
+        colors = { -- add/modify theme and palette colors
+          palette = {},
+          theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
+        },
+        overrides = function(colors) -- add/modify highlights
+          return {}
+        end,
+        theme = 'wave', -- Load "wave" theme when 'background' option is not set
+        background = { -- map the value of 'background' option to a theme
+          dark = 'dragon', -- try "dragon" !
+          light = 'lotus',
+        },
+      }
+      vim.cmd.colorscheme 'kanagawa'
+    end,
+  },
+  -- { -- You can easily change to a different colorscheme.
+  --   -- Change the name of the colorscheme plugin below, and then
+  --   -- change the command in the config to whatever the name of that colorscheme is.
   --   --
-  --   --   comment_italics = true,
-  --   --   transparent_background = true,
-  --   --   transparent_float_background = true, -- aka pum(popup menu) background
-  --   --   reverse_visual = false,
-  --   --   dim_nc = false,
-  --   --   cmp_cmdline_disable_search_highlight_group = false, -- disable search highlight group for cmp item
-  --   --   -- if `transparent_float_background` false, make telescope border color same as float background
-  --   --   telescope_border_follow_float_background = false,
-  --   --   -- similar to above, but for lspsaga
-  --   --   lspsaga_border_follow_float_background = false,
-  --   --   -- diagnostic virtual text background, like error lens
-  --   --   diagnostic_virtual_text_background = false,
+  --   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+  --   -- 'rose-pine/neovim',
+  --   '2nthony/vitesse.nvim',
+  --
+  --   comment_italics = true,
+  --   transparent_background = true,
+  --   transparent_float_background = true, -- aka pum(popup menu) background
+  --   reverse_visual = false,
+  --   dim_nc = false,
+  --   cmp_cmdline_disable_search_highlight_group = false, -- disable search highlight group for cmp item
+  --   -- if `transparent_float_background` false, make telescope border color same as float background
+  --   telescope_border_follow_float_background = false,
+  --   -- similar to above, but for lspsaga
+  --   lspsaga_border_follow_float_background = false,
+  --   -- diagnostic virtual text background, like error lens
+  --   diagnostic_virtual_text_background = false,
+  --
+  --   -- override the `lua/vitesse/palette.lua`, go to file see fields
+  --   colors = {},
+  --   themes = {},
   --
   --   priority = 1000, -- Make sure to load this before all the other start plugins.
-  --   -- },
   --   init = function()
   --     -- Load the colorscheme here.
   --     -- Like many other themes, this one has different styles, and you could load
   --     -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  --     vim.cmd.colorscheme 'rose-pine'
+  --     vim.cmd.colorscheme 'vitesse'
   --
   --     -- You can configure highlights by doing something like:
   --     vim.cmd.hi 'Comment gui=none'
   --     vim.cmd.hi 'Type gui=none'
-  --   end,
-  --
-  --   config = function()
-  --     require('rose-pine').setup {
-  --       disable_background = true,
-  --       comment_italics = true,
-  --       vim.api.nvim_set_hl(0, 'Normal', { bg = 'none' }),
-  --       vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' }),
-  --     }
+  --     vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' })
   --   end,
   -- },
-
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    -- 'rose-pine/neovim',
-    '2nthony/vitesse.nvim',
-
-    comment_italics = true,
-    transparent_background = true,
-    transparent_float_background = true, -- aka pum(popup menu) background
-    reverse_visual = false,
-    dim_nc = false,
-    cmp_cmdline_disable_search_highlight_group = false, -- disable search highlight group for cmp item
-    -- if `transparent_float_background` false, make telescope border color same as float background
-    telescope_border_follow_float_background = false,
-    -- similar to above, but for lspsaga
-    lspsaga_border_follow_float_background = false,
-    -- diagnostic virtual text background, like error lens
-    diagnostic_virtual_text_background = false,
-
-    -- override the `lua/vitesse/palette.lua`, go to file see fields
-    colors = {},
-    themes = {},
-
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'vitesse'
-
-      -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
-      vim.cmd.hi 'Type gui=none'
-      vim.api.nvim_set_hl(0, 'NormalFloat', { bg = 'none' })
-    end,
-  },
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
