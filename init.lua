@@ -131,6 +131,21 @@ if not vim.uv.fs_stat(lazypath) then
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
+-- Sometimes Treesitter may be broken. In this case it is useful to disable it for particular buffer.
+-- Create a command to toggle Treesitter highlighting
+vim.api.nvim_create_user_command('ToggleTSHighlight', function()
+  if vim.b.ts_highlight then
+    vim.cmd 'TSBufDisable highlight'
+    vim.b.ts_highlight = false
+  else
+    vim.cmd 'TSBufEnable highlight'
+    vim.b.ts_highlight = true
+  end
+end, {})
+
+-- Optional: Add a keymapping for quick access
+vim.api.nvim_set_keymap('n', '<leader>th', ':ToggleTSHighlight<CR>', { noremap = true, silent = true, desc = 'Toggle On/Off Treesitter highlight' })
+
 -- [[ Configure and install plugins ]]
 --
 --  To check the current status of your plugins, run
@@ -143,10 +158,6 @@ vim.opt.rtp:prepend(lazypath)
 --
 -- NOTE: Here is where you install your plugins.
 
-function ColorMyPencils(color)
-  color = color or 'rose-pine'
-  vim.cmd.colorscheme(color)
-end
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
@@ -316,10 +327,10 @@ require('lazy').setup({
       end)
 
       -- Toggle previous & next buffers stored within Harpoon list
-      vim.keymap.set('n', '<C-S-P>', function()
+      vim.keymap.set('n', '<C-S-J>', function()
         harpoon:list():prev()
       end)
-      vim.keymap.set('n', '<C-S-N>', function()
+      vim.keymap.set('n', '<C-S-K>', function()
         harpoon:list():next()
       end)
       vim.keymap.set('n', '<C-e>', function()
@@ -894,7 +905,7 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'python', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'yaml', 'lua', 'python', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
