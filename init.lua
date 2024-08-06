@@ -105,6 +105,45 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 -- vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 -- vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+------------
+-- Scratch buffer
+vim.keymap.set('n', '<leader>s', function()
+  vim.cmd 'new'
+  local buf = vim.api.nvim_get_current_buf()
+  vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
+  vim.api.nvim_buf_set_option(buf, 'bufhidden', 'hide')
+  vim.api.nvim_buf_set_option(buf, 'swapfile', false)
+end, { noremap = true, silent = true, desc = 'Open scratch buffer' })
+
+--
+-- Make C-l like in emacs
+local last_line = vim.fn.line '.'
+
+local function cycle_screen_position()
+  local current_line = vim.fn.line '.'
+  local win_height = vim.fn.winheight(0)
+  local cursor_line = vim.fn.winline()
+
+  -- If the line has changed, center the view
+  if current_line ~= last_line then
+    vim.cmd 'normal! zz'
+  else
+    -- If line hasn't changed, cycle through positions
+    if cursor_line <= win_height / 3 then
+      vim.cmd 'normal! zb'
+    elseif cursor_line <= (2 * win_height) / 3 then
+      vim.cmd 'normal! zt'
+    else
+      vim.cmd 'normal! zz'
+    end
+  end
+
+  -- Update last_line for next call
+  last_line = current_line
+end
+
+vim.keymap.set('n', '<C-l>', cycle_screen_position, { noremap = true, silent = true })
+
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
@@ -353,6 +392,14 @@ require('lazy').setup({
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
 
+      -- Telescope show functions from file.
+      local builtin = require 'telescope.builtin'
+      vim.api.nvim_create_user_command('TelescopeFunctions', function()
+        builtin.lsp_document_symbols {
+          symbols = { 'function', 'method', 'class' },
+        }
+      end, {})
+      vim.keymap.set('n', '<leader>tf', ':TelescopeFunctions<CR>', { noremap = true, silent = true, desc = 'Show functiOns' })
       -- It's also possible to pass additional configuration options.
       --  See `:help telescope.builtin.live_grep()` for information about particular keys
       vim.keymap.set('n', '<leader>s/', function()
@@ -367,6 +414,16 @@ require('lazy').setup({
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
     end,
+  },
+
+  -- ZEN mode
+  {
+    'folke/zen-mode.nvim',
+    opts = {
+      -- your configuration comes here
+      -- or leave it empty to use the default settings
+      -- refer to the configuration section below
+    },
   },
 
   -- LSP Plugins
