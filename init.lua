@@ -106,14 +106,14 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 -- vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 ------------
--- Scratch buffer
-vim.keymap.set('n', '<leader>s', function()
-  vim.cmd 'new'
-  local buf = vim.api.nvim_get_current_buf()
-  vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
-  vim.api.nvim_buf_set_option(buf, 'bufhidden', 'hide')
-  vim.api.nvim_buf_set_option(buf, 'swapfile', false)
-end, { noremap = true, silent = true, desc = 'Open scratch buffer' })
+-- -- Scratch buffer
+-- vim.keymap.set('n', '<leader>bs', function()
+--   vim.cmd 'new'
+--   local buf = vim.api.nvim_get_current_buf()
+--   vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
+--   vim.api.nvim_buf_set_option(buf, 'bufhidden', 'hide')
+--   vim.api.nvim_buf_set_option(buf, 'swapfile', false)
+-- end, { noremap = true, silent = true, desc = 'Open scratch buffer' })
 
 --
 -- Make C-l like in emacs
@@ -387,7 +387,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
         builtin.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-          winblend = 10,
+          winblend = 20,
           previewer = false,
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
