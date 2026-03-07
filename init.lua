@@ -71,6 +71,12 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+-- Auto-reload files changed outside of Neovim
+vim.opt.autoread = true
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold' }, {
+  command = 'checktime',
+})
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -342,7 +348,7 @@ require('lazy').setup({
       -- vim.keymap.set('n', '<leader>sf', builtin.find_files, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>sf', function()
         builtin.find_files {
-          find_command = { 'rg', '--files', '--hidden', '--no-ignore', '--glob', '!**/{.git,env/,venv,node_modules}/*' },
+          find_command = { 'rg', '--files', '--hidden', '--no-ignore', '--glob', '!**/{.git,env,venv,node_modules,__pycache__}/*' },
         }
       end, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
