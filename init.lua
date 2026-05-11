@@ -176,20 +176,17 @@ if not vim.uv.fs_stat(lazypath) then
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
--- Sometimes Treesitter may be broken. In this case it is useful to disable it for particular buffer.
--- Create a command to toggle Treesitter highlighting
+-- Toggle Treesitter highlighting for the current buffer (nvim-treesitter v0.9+)
 vim.api.nvim_create_user_command('ToggleTSHighlight', function()
-  if vim.b.ts_highlight then
-    vim.cmd 'TSBufDisable highlight'
-    vim.b.ts_highlight = false
+  local bufnr = vim.api.nvim_get_current_buf()
+  if vim.treesitter.highlighter.active[bufnr] then
+    vim.treesitter.stop(bufnr)
   else
-    vim.cmd 'TSBufEnable highlight'
-    vim.b.ts_highlight = true
+    vim.treesitter.start(bufnr)
   end
 end, {})
 
--- Optional: Add a keymapping for quick access
-vim.api.nvim_set_keymap('n', '<leader>th', ':ToggleTSHighlight<CR>', { noremap = true, silent = true, desc = 'Toggle On/Off Treesitter highlight' })
+vim.keymap.set('n', '<leader>tT', '<cmd>ToggleTSHighlight<CR>', { noremap = true, silent = true, desc = '[T]oggle [T]reesitter highlight' })
 
 -- [[ Configure and install plugins ]]
 --
@@ -404,13 +401,12 @@ require('lazy').setup({
       end, { desc = '[/] Fuzzily search in current buffer' })
 
       -- Telescope show functions from file.
-      local builtin = require 'telescope.builtin'
       vim.api.nvim_create_user_command('TelescopeFunctions', function()
         builtin.lsp_document_symbols {
           symbols = { 'function', 'method', 'class' },
         }
       end, {})
-      vim.keymap.set('n', '<leader>tf', ':TelescopeFunctions<CR>', { noremap = true, silent = true, desc = 'Show functiOns' })
+      vim.keymap.set('n', '<leader>tf', ':TelescopeFunctions<CR>', { noremap = true, silent = true, desc = 'Show Functions' })
       -- It's also possible to pass additional configuration options.
       --  See `:help telescope.builtin.live_grep()` for information about particular keys
       vim.keymap.set('n', '<leader>s/', function()
@@ -816,9 +812,6 @@ require('lazy').setup({
       }
     end,
   },
-  {
-    'tjdevries/colorbuddy.nvim',
-  },
   -- {
   --   'rose-pine/neovim',
   --   priority = 1000,
@@ -989,7 +982,37 @@ require('lazy').setup({
       -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
 
       ---@diagnostic disable-next-line: missing-fields
-      require('nvim-treesitter.configs').setup(opts)
+      require('nvim-treesitter.config').setup(opts)
+
+      -- nvim-treesitter v0.9 removed several APIs that older plugins (e.g. telescope)
+      -- still call. Patch them back so those plugins work without modification.
+      local parsers = require('nvim-treesitter.parsers')
+      if not parsers.ft_to_lang then
+        parsers.ft_to_lang = vim.treesitter.language.get_lang
+      end
+      -- get_parser shim is intentionally omitted: telescope calls it only after
+      -- is_enabled returns true; our is_enabled never returns true (see below).
+
+      -- The old nvim-treesitter.configs module (renamed to .config in v0.9) is
+      -- required by telescope previewers; provide a minimal compat shim.
+      -- is_enabled uses vim.treesitter.start() (the correct modern path) and then
+      -- returns false so telescope skips its broken highlighter.new() call entirely.
+      if type(package.loaded['nvim-treesitter.configs']) ~= 'table' then
+        package.loaded['nvim-treesitter.configs'] = {
+          is_enabled = function(feature, lang, bufnr)
+            if feature ~= 'highlight' then
+              return false
+            end
+            pcall(vim.treesitter.start, bufnr, lang)
+            return false
+          end,
+          get_module = function(name)
+            if name == 'highlight' then
+              return { additional_vim_regex_highlighting = false }
+            end
+          end,
+        }
+      end
 
       -- There are additional nvim-treesitter modules that you can use to interact
       -- with nvim-treesitter. You should go explore a few and see what interests you:
