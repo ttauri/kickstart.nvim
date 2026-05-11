@@ -291,6 +291,7 @@ require('lazy').setup({
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
       pcall(require('telescope').load_extension, 'projects')
+      pcall(require('telescope').load_extension, 'aerial')
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
@@ -321,9 +322,9 @@ require('lazy').setup({
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
 
-      vim.keymap.set('n', '<leader>tf', function()
+      vim.keymap.set('n', '<leader>df', function()
         builtin.lsp_document_symbols { symbols = { 'function', 'method', 'class' } }
-      end, { desc = 'Show [F]unctions' })
+      end, { desc = '[D]ocument [F]unctions' })
       -- It's also possible to pass additional configuration options.
       --  See `:help telescope.builtin.live_grep()` for information about particular keys
       vim.keymap.set('n', '<leader>s/', function()
@@ -938,6 +939,27 @@ require('lazy').setup({
       --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
       --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
     end,
+  },
+
+  {
+    'stevearc/aerial.nvim',
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+      'nvim-tree/nvim-web-devicons',
+    },
+    keys = {
+      { '<leader>da', '<cmd>AerialToggle<CR>', desc = '[D]ocument [A]erial outline' },
+    },
+    opts = {
+      filter_kind = {
+        'Class', 'Constructor', 'Enum', 'Function', 'Interface', 'Module', 'Method', 'Struct',
+      },
+      layout = {
+        default_direction = 'prefer_right',
+        min_width = 20,
+      },
+      show_guides = true,
+    },
   },
 
   {
