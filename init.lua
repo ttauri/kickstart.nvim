@@ -520,7 +520,9 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         gopls = {},
-        -- pyright = {},
+        pyright = {},
+        jsonls = {},
+        yamlls = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -598,7 +600,7 @@ require('lazy').setup({
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true, python = true }
+        local disable_filetypes = { c = true, cpp = true }
         return {
           timeout_ms = 500,
           lsp_format = disable_filetypes[vim.bo[bufnr].filetype] and 'never' or 'fallback',
@@ -607,11 +609,9 @@ require('lazy').setup({
       formatters_by_ft = {
         lua = { 'stylua' },
         go = { 'goimports' },
-        -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
-        --
-        -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        python = { 'ruff_format' },
+        json = { 'prettierd', 'prettier', stop_after_first = true },
+        yaml = { 'prettierd', 'prettier', stop_after_first = true },
       },
     },
   },
