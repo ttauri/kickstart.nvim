@@ -73,7 +73,7 @@ vim.opt.scrolloff = 10
 
 -- Auto-reload files changed outside of Neovim
 vim.opt.autoread = true
-vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter', 'CursorHold' }, {
+vim.api.nvim_create_autocmd({ 'FocusGained', 'BufEnter' }, {
   command = 'checktime',
 })
 
@@ -101,54 +101,6 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 -- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
 -- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
 -- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
-
--- Keybinds to make split navigation easier.
---  Use CTRL+<hjkl> to switch between windows
---
---  See `:help wincmd` for a list of all window commands
--- vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
--- vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
--- vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
--- vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
-
-------------
--- -- Scratch buffer
--- vim.keymap.set('n', '<leader>bs', function()
---   vim.cmd 'new'
---   local buf = vim.api.nvim_get_current_buf()
---   vim.api.nvim_buf_set_option(buf, 'buftype', 'nofile')
---   vim.api.nvim_buf_set_option(buf, 'bufhidden', 'hide')
---   vim.api.nvim_buf_set_option(buf, 'swapfile', false)
--- end, { noremap = true, silent = true, desc = 'Open scratch buffer' })
-
---
--- Make C-l like in emacs
-local last_line = vim.fn.line '.'
-
-local function cycle_screen_position()
-  local current_line = vim.fn.line '.'
-  local win_height = vim.fn.winheight(0)
-  local cursor_line = vim.fn.winline()
-
-  -- If the line has changed, center the view
-  if current_line ~= last_line then
-    vim.cmd 'normal! zz'
-  else
-    -- If line hasn't changed, cycle through positions
-    if cursor_line <= win_height / 3 then
-      vim.cmd 'normal! zb'
-    elseif cursor_line <= (2 * win_height) / 3 then
-      vim.cmd 'normal! zt'
-    else
-      vim.cmd 'normal! zz'
-    end
-  end
-
-  -- Update last_line for next call
-  last_line = current_line
-end
-
-vim.keymap.set('n', '<C-l>', cycle_screen_position, { noremap = true, silent = true })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -252,8 +204,11 @@ require('lazy').setup({
 
       -- Document existing key chains
       require('which-key').add {
+        { '<leader>b', group = '[B]uffer' },
         { '<leader>c', group = '[C]ode' },
         { '<leader>d', group = '[D]ocument' },
+        { '<leader>g', group = '[G]it' },
+        { '<leader>m', group = '[M]arkdown' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
         { '<leader>w', group = '[W]orkspace' },
@@ -332,12 +287,10 @@ require('lazy').setup({
           },
         },
       }
-      local harpoon = require 'harpoon'
-      harpoon:setup()
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
-      pcall(require('telescope').load_extension 'projects')
+      pcall(require('telescope').load_extension, 'projects')
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
@@ -355,41 +308,9 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
-
-      -- Harpoon settings
-      vim.keymap.set('n', '<leader>a', function()
-        harpoon:list():add()
-      end, { desc = 'Add file to Harpoon' })
-      vim.keymap.set('n', '<C-h>', function()
-        harpoon:list():select(1)
-      end)
-      vim.keymap.set('n', '<C-t>', function()
-        harpoon:list():select(2)
-      end)
-      vim.keymap.set('n', '<C-n>', function()
-        harpoon:list():select(3)
-      end)
-      vim.keymap.set('n', '<C-s>', function()
-        harpoon:list():select(4)
-      end)
-
-      -- Toggle previous & next buffers stored within Harpoon list
-      vim.keymap.set('n', '<C-S-J>', function()
-        harpoon:list():prev()
-      end)
-      vim.keymap.set('n', '<C-S-K>', function()
-        harpoon:list():next()
-      end)
-      vim.keymap.set('n', '<C-e>', function()
-        harpoon.ui:toggle_quick_menu(harpoon:list())
-      end)
-
-      vim.api.nvim_set_keymap(
-        'n',
-        '<leader>p',
-        ":lua require'telescope'.extensions.projects.projects{}<CR>",
-        { desc = '[P]rojects', noremap = true, silent = true }
-      )
+      vim.keymap.set('n', '<leader>p', function()
+        require('telescope').extensions.projects.projects {}
+      end, { desc = '[P]rojects' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
@@ -400,13 +321,9 @@ require('lazy').setup({
         })
       end, { desc = '[/] Fuzzily search in current buffer' })
 
-      -- Telescope show functions from file.
-      vim.api.nvim_create_user_command('TelescopeFunctions', function()
-        builtin.lsp_document_symbols {
-          symbols = { 'function', 'method', 'class' },
-        }
-      end, {})
-      vim.keymap.set('n', '<leader>tf', ':TelescopeFunctions<CR>', { noremap = true, silent = true, desc = 'Show Functions' })
+      vim.keymap.set('n', '<leader>tf', function()
+        builtin.lsp_document_symbols { symbols = { 'function', 'method', 'class' } }
+      end, { desc = 'Show [F]unctions' })
       -- It's also possible to pass additional configuration options.
       --  See `:help telescope.builtin.live_grep()` for information about particular keys
       vim.keymap.set('n', '<leader>s/', function()
@@ -426,11 +343,11 @@ require('lazy').setup({
   -- ZEN mode
   {
     'folke/zen-mode.nvim',
-    opts = {
-      -- your configuration comes here
-      -- or leave it empty to use the default settings
-      -- refer to the configuration section below
+    cmd = 'ZenMode',
+    keys = {
+      { '<leader>z', '<cmd>ZenMode<CR>', desc = '[Z]en Mode' },
     },
+    opts = {},
   },
 
   -- LSP Plugins
@@ -668,7 +585,7 @@ require('lazy').setup({
       {
         '<leader>f',
         function()
-          require('conform').format { async = true, lsp_fallback = true }
+          require('conform').format { async = true, lsp_format = 'fallback' }
         end,
         mode = '',
         desc = '[F]ormat buffer',
@@ -683,7 +600,7 @@ require('lazy').setup({
         local disable_filetypes = { c = true, cpp = true, python = true }
         return {
           timeout_ms = 500,
-          lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
+          lsp_format = disable_filetypes[vim.bo[bufnr].filetype] and 'never' or 'fallback',
         }
       end,
       formatters_by_ft = {
@@ -1027,6 +944,18 @@ require('lazy').setup({
     'ThePrimeagen/harpoon',
     branch = 'harpoon2',
     dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      local harpoon = require 'harpoon'
+      harpoon:setup()
+      vim.keymap.set('n', '<leader>a', function() harpoon:list():add() end, { desc = 'Add file to Harpoon' })
+      vim.keymap.set('n', '<C-e>', function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
+      vim.keymap.set('n', '<C-h>', function() harpoon:list():select(1) end)
+      vim.keymap.set('n', '<C-t>', function() harpoon:list():select(2) end)
+      vim.keymap.set('n', '<C-n>', function() harpoon:list():select(3) end)
+      vim.keymap.set('n', '<C-s>', function() harpoon:list():select(4) end)
+      vim.keymap.set('n', '<C-S-J>', function() harpoon:list():prev() end)
+      vim.keymap.set('n', '<C-S-K>', function() harpoon:list():next() end)
+    end,
   },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
