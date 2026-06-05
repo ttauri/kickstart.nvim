@@ -132,6 +132,12 @@ if not vim.uv.fs_stat(lazypath) then
 end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
+-- project.nvim calls vim.lsp.buf_get_clients() which was removed in nvim 0.12.
+-- Override with the current API so it stops generating the deprecation warning.
+vim.lsp.buf_get_clients = function(bufnr)
+  return vim.lsp.get_clients { bufnr = bufnr or 0 }
+end
+
 -- Toggle Treesitter highlighting for the current buffer (nvim-treesitter v0.9+)
 vim.api.nvim_create_user_command('ToggleTSHighlight', function()
   local bufnr = vim.api.nvim_get_current_buf()
@@ -586,12 +592,12 @@ require('lazy').setup({
         handlers = {
           function(server_name)
             local server = servers[server_name] or {}
-            -- This handles overriding only values explicitly passed
-            -- by the server configuration above. Useful when disabling
-            -- certain features of an LSP (for example, turning off formatting for tsserver)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
             require('lspconfig')[server_name].setup(server)
           end,
+          -- stylua is a formatter only — prevent mason-lspconfig from auto-starting
+          -- it as an LSP server (where it would conflict with lua_ls)
+          stylua = function() end,
         },
       }
     end,
