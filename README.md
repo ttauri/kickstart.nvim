@@ -31,6 +31,7 @@ Leader key is `Space`. Press it and wait to see available keybinds via which-key
 - **ToggleTerm** -- persistent terminal
 - **Zen Mode** -- distraction-free editing
 - **Kanagawa** -- color scheme
+- **Neorg** -- note-taking and personal knowledge management (`.norg` files)
 
 ## Structure
 
@@ -55,4 +56,10 @@ lua/
 
 - Neovim (stable)
 - `git`, `make`, `gcc`, `ripgrep`
+- **Lua 5.1** and **luarocks** built against Lua 5.1 — required for neorg's treesitter parsers.
+  On NixOS/nix-darwin: `lua5_1` + `lua51Packages.luarocks` in your home packages.
+  On other systems: install via your package manager (e.g. `brew install lua@5.1 luarocks`), making sure `lua` and `luarocks` in `$PATH` resolve to the 5.1 versions.
+- `clang` or `gcc` with C++ support — for building treesitter parsers
 - A [Nerd Font](https://www.nerdfonts.com/) (optional, for icons)
+
+> **Note:** On first launch, lazy.nvim uses [hererocks](https://github.com/luarocks/hererocks) to install its own Lua 5.1 + luarocks environment and downloads pre-compiled treesitter parser rocks. This is a one-time setup that takes ~30 seconds.
